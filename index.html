@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Alguém do outro lado da linha para ouvir você. Sem nome, sem perfil.">
+<meta name="theme-color" content="#0F1420">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Escuta">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Escuta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+/* Layout: phone-first app shell; on wide screens the app sits in a device column beside a guide to the flow */
+:root{
+  --ground:#0B0F19;
+  --night:#0F1420;
+  --surface:#171E2E;
+  --raised:#1D2539;
+  --line:#232B40;
+  --line-strong:#2A3349;
+  --text:#EEF1F7;
+  --text-soft:#C9D1E2;
+  --text-muted:#A9B3C7;
+  --text-faint:#8A94AB;
+  --lamp:#F4B860;
+  --lamp-hover:#F8CD8C;
+  --on-lamp:#17120A;
+  --on-lamp-soft:#3A2A10;
+  --lamp-line:#6B5530;
+  --lamp-wash:#2A2216;
+  --lamp-text:#F8DDB0;
+  --lamp-text-soft:#E4D2B4;
+  --lamp-glow:rgba(244,184,96,.14);
+  --lamp-ring:rgba(244,184,96,.24);
+  --lamp-ring-strong:rgba(244,184,96,.42);
+  --live:#5CC8A8;
+  --on-live:#0B1A15;
+  --live-line:#2F5F53;
+  --live-wash:#173A32;
+  --stop:#C93A43;
+  --on-stop:#FFFFFF;
+  --bezel:#070A12;
+  --shadow:rgba(0,0,0,.55);
+  --font-display:'Bricolage Grotesque','Figtree',ui-sans-serif,system-ui,sans-serif;
+  --font-body:'Figtree',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{height:100%;background:var(--night)}
+body{height:100%;margin:0;overflow:hidden;background:var(--night);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+a{color:var(--lamp);text-underline-offset:3px}
+a:not([class]):hover{color:var(--lamp-hover)}
+:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+svg{flex-shrink:0}
+
+/* Shell */
+.stage{height:100%;display:flex;justify-content:center;align-items:stretch}
+.guide{display:none}
+.device{position:relative;width:100%;height:100%;overflow:hidden;background:var(--night)}
+.app{position:relative;height:100%;display:flex;flex-direction:column}
+.screens{position:relative;flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
+@media (min-width:520px) and (min-height:620px){
+  html,body{background:var(--ground)}
+  .stage{align-items:center;gap:56px;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .device{flex:0 0 390px;width:390px;height:min(844px,100%);border-radius:40px;border:1px solid var(--line-strong);box-shadow:0 0 0 8px var(--bezel),0 40px 90px -30px var(--shadow)}
+}
+@media (min-width:1000px) and (min-height:620px){
+  .guide{display:flex;flex-direction:column;gap:28px;flex:0 1 300px;max-height:100%;overflow-y:auto;padding-block:8px}
+}
+
+/* Guide (wide screens) */
+.guide .brand{height:auto}
+.guide-lede{margin:12px 0 0;max-width:32ch;font-size:15px;line-height:22px;color:var(--text-muted)}
+.flow{display:flex;flex-direction:column;gap:20px}
+.flow h2,.tips h2{margin:0 0 8px;font-size:12px;line-height:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)}
+.flow ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+.flow button{width:100%;min-height:40px;display:flex;align-items:center;gap:12px;padding:6px 10px;border:0;border-radius:10px;background:transparent;color:var(--text-soft);font-size:15px;line-height:20px;text-align:left}
+.flow button:hover{background:var(--surface);color:var(--text)}
+.flow button[aria-current="step"]{background:var(--surface);color:var(--text)}
+.flow .n{width:24px;height:24px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line-strong);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-muted)}
+.flow button[aria-current="step"] .n{background:var(--lamp);border-color:var(--lamp);color:var(--on-lamp)}
+.tips ul{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:20px;color:var(--text-muted)}
+
+/* Screen scaffolding */
+.screen{width:100%;max-width:560px;min-height:100%;margin-inline:auto;display:flex;flex-direction:column;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.stack{flex:1;display:flex;flex-direction:column;gap:16px;padding-block:20px 24px}
+.stack.gap-20{gap:20px}
+.stack.gap-22{gap:22px}
+.stack.top-tight{padding-top:4px}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.group{display:flex;flex-direction:column;gap:10px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:16px}
+.brand{height:44px;display:flex;align-items:center;gap:8px;color:var(--lamp)}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.word{font-family:var(--font-display);font-size:20px;line-height:26px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.word-lg{font-size:22px;line-height:28px}
+.proto{height:24px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;border:1px solid var(--line-strong);color:var(--text-muted);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.pill{height:44px;display:inline-flex;align-items:center;gap:8px;padding:0 16px;border-radius:999px;border:1px solid var(--lamp-line);background:transparent;color:var(--lamp);font-size:14px;font-weight:600;white-space:nowrap}
+.pill:hover{background:var(--lamp-wash)}
+.backbar{display:flex;align-items:center;gap:12px;padding-top:12px}
+.closebar{display:flex;justify-content:flex-end;padding-top:12px}
+.icon-btn{width:44px;height:44px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+.icon-btn:hover{background:var(--raised);border-color:var(--line-strong)}
+.bar-title{margin:0;font-family:var(--font-display);font-size:19px;line-height:24px;font-weight:700}
+.title{margin:0;font-family:var(--font-display);font-size:28px;line-height:34px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.title.md{font-size:26px;line-height:32px;letter-spacing:-.01em}
+.intro{display:flex;flex-direction:column;gap:8px}
+.me{display:flex;align-items:center;gap:8px;font-size:13px;line-height:18px;color:var(--text-muted)}
+.me strong{font-weight:600;color:var(--text)}
+.lede{margin:0;font-size:15px;line-height:22px;color:var(--text-muted);text-wrap:pretty}
+.meta{display:flex;align-items:center;gap:8px;font-size:13px;line-height:18px;color:var(--text-muted)}
+.eyebrow{font-size:13px;line-height:18px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--lamp)}
+legend,.label{display:block;padding:0;margin:0 0 10px;font-size:15px;line-height:20px;font-weight:600;color:var(--text)}
+.group .label{margin:0}
+.hint{margin:4px 0 12px;font-size:13px;line-height:18px;color:var(--text-muted)}
+.hint.after{margin:10px 0 0}
+.note{margin:0;font-size:13px;line-height:18px;color:var(--text-muted)}
+.fine{margin:0;font-size:13px;line-height:18px;color:var(--text-muted);text-align:center;text-wrap:balance}
+.fine.faint{color:var(--text-faint)}
+fieldset{margin:0;padding:0;border:0;min-width:0}
+.ft{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ft.grow{flex:1}
+.ft .t{font-size:15px;line-height:20px;font-weight:600;color:var(--text)}
+.ft .s{font-size:13px;line-height:18px;color:var(--text-muted)}
+.tile{width:36px;height:36px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:var(--raised);color:var(--lamp)}
+.tile.live{color:var(--live)}
+
+/* Buttons */
+.btn{width:100%;height:54px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 20px;border:1px solid transparent;border-radius:999px;font-size:17px;font-weight:700;line-height:1.2;text-align:center;text-decoration:none}
+.btn-lamp{background:var(--lamp);color:var(--on-lamp)}
+.btn-lamp:hover{background:var(--lamp-hover);color:var(--on-lamp)}
+.btn-lamp:disabled,.btn-lamp:disabled:hover{background:var(--line-strong);color:var(--text-muted)}
+.btn-ghost{height:48px;font-size:15px;font-weight:600;border-color:var(--line-strong);background:transparent;color:var(--text)}
+.btn-ghost:hover{background:var(--surface);color:var(--text)}
+.btn-lamp-outline{height:48px;font-size:15px;font-weight:600;border-color:var(--lamp-line);background:transparent;color:var(--lamp)}
+.btn-lamp-outline:hover{background:var(--lamp-wash);color:var(--lamp)}
+.btn-sm{height:44px;font-size:15px}
+.pair{display:flex;gap:8px}
+.pair>.btn{flex:1 1 0;width:auto;padding:0 12px}
+
+/* Entrada */
+.entrada{padding-block:24px}
+.hero{margin:28px 0 0;display:flex;flex-direction:column;font-family:var(--font-display);font-size:34px;line-height:38px;font-weight:700;letter-spacing:-.02em}
+.hero .lit{color:var(--lamp)}
+.lede.big{margin-top:14px;font-size:16px;line-height:24px}
+.alias-card{margin-top:22px;display:flex;align-items:center;gap:14px;padding:14px 14px 14px 16px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.kicker{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.alias{font-family:var(--font-display);font-size:21px;line-height:26px;font-weight:700;color:var(--text)}
+.features{margin:22px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:16px}
+.features li{display:flex;align-items:flex-start;gap:14px}
+.features .s{font-size:14px;line-height:19px}
+.entrada .foot{padding-top:20px;gap:14px}
+.agree{display:flex;align-items:flex-start;gap:12px;font-size:14px;line-height:20px;color:var(--text-soft);cursor:pointer}
+.agree input{width:22px;height:22px;margin:0;flex-shrink:0;accent-color:var(--lamp);cursor:pointer}
+
+/* Avatars */
+.avatar{display:block;width:var(--s);height:var(--s);flex-shrink:0;border-radius:50%;background:var(--a);position:relative;overflow:hidden}
+.avatar::after{content:"";position:absolute;right:-6%;bottom:-6%;width:58%;height:58%;border-radius:50%;background:var(--b)}
+
+/* Início */
+.search{position:relative}
+.search svg{position:absolute;left:16px;top:16px;color:var(--text-faint);pointer-events:none}
+.search input{width:100%;height:52px;padding:0 16px 0 46px;border-radius:16px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:var(--text-faint)}
+.search input:focus{border-color:var(--lamp-line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:44px;display:inline-flex;align-items:center;gap:6px;padding:0 15px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text-soft);font-size:14px;font-weight:600}
+.chip:hover{border-color:var(--text-faint);color:var(--text)}
+.chip[aria-pressed="true"],.chip[aria-pressed="true"]:hover{background:var(--lamp);border-color:var(--lamp);color:var(--on-lamp)}
+.chip .check{display:none}
+.chip[aria-pressed="true"] .check{display:inline-flex}
+.cta{margin-top:4px;display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:22px;background:var(--lamp);color:var(--on-lamp)}
+.cta h2{margin:0;font-family:var(--font-display);font-size:20px;line-height:24px;font-weight:700;letter-spacing:-.01em}
+.cta p{margin:0;font-size:14px;line-height:20px;color:var(--on-lamp-soft)}
+.cta .btn{margin-top:10px;height:48px;font-size:16px;background:var(--on-lamp);color:var(--lamp)}
+.cta .btn:hover{background:var(--on-lamp-soft);color:var(--lamp)}
+.cta :focus-visible{outline-color:var(--on-lamp)}
+.section-head{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.section-head h2{margin:0;font-family:var(--font-display);font-size:18px;line-height:24px;font-weight:700}
+.count{display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;color:var(--text-muted)}
+.dot{width:7px;height:7px;flex-shrink:0;border-radius:50%;background:var(--text-faint)}
+.dot.is-live{background:var(--live)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.listener{display:flex;flex-direction:column;gap:12px;padding:16px}
+.row{display:flex;align-items:center;gap:10px}
+.who{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.name-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.name{font-size:16px;line-height:22px;font-weight:700}
+.name.lg{font-family:var(--font-display);font-size:20px;line-height:26px}
+.badge{height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;border:1px solid var(--live-line);color:var(--live);font-size:11.5px;font-weight:600}
+.status{display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;color:var(--text-muted)}
+.round{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;border:1px solid transparent}
+.round.call{background:var(--live);color:var(--on-live)}
+.round.call:hover{filter:brightness(1.08)}
+.round.bell{background:var(--raised);border-color:var(--line-strong);color:var(--text-muted)}
+.round.bell[aria-pressed="true"]{background:var(--lamp-wash);border-color:var(--lamp-line);color:var(--lamp)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:var(--raised);color:var(--text-soft);font-size:12.5px;font-weight:500}
+.empty{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:20px;border:1px dashed var(--line-strong)}
+.empty strong{font-size:15px;line-height:20px}
+.empty p{margin:0;font-size:14px;line-height:20px;color:var(--text-muted)}
+.warm{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--lamp-wash);border:1px solid var(--lamp-line)}
+.warm strong{font-size:15px;line-height:21px;font-weight:600;color:var(--lamp-text)}
+.warm p{margin:0;font-size:14px;line-height:20px;color:var(--lamp-text-soft)}
+
+/* Forms */
+.choices{display:flex;flex-direction:column;gap:10px}
+.choices.tight{gap:8px}
+.choice{min-height:64px;display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:16px;border:1.5px solid var(--line-strong);background:var(--surface);cursor:pointer}
+.choice.compact{min-height:56px;padding-block:0;font-size:16px;line-height:22px;font-weight:600}
+.choice:hover{border-color:var(--text-faint)}
+.choice:has(input:checked){border-color:var(--lamp)}
+.choice input,.reason input{width:20px;height:20px;margin:0;flex-shrink:0;accent-color:var(--lamp);cursor:pointer}
+.seg{display:grid;gap:6px;padding:4px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.seg.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.seg.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg button{height:44px;border:0;border-radius:12px;background:transparent;color:var(--text-soft);font-size:15px;font-weight:600}
+.seg button:hover:not(:disabled){background:var(--raised)}
+.seg button[aria-pressed="true"],.seg button[aria-pressed="true"]:hover{background:var(--lamp);color:var(--on-lamp)}
+.seg button:disabled{color:var(--text-faint);opacity:.55}
+.row-switch{display:flex;align-items:center;gap:12px;padding:12px 10px 12px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.switch{width:56px;height:44px;flex-shrink:0;padding:0;border:0;background:transparent;display:grid;place-items:center}
+.switch .track{width:52px;height:32px;padding:3px;display:flex;align-items:center;border-radius:999px;background:var(--line-strong);transition:background .2s}
+.switch .knob{width:26px;height:26px;border-radius:50%;background:var(--text-muted);transition:transform .2s,background .2s}
+.switch[aria-checked="true"] .track{background:var(--live)}
+.switch[aria-checked="true"] .knob{background:var(--on-live);transform:translateX(20px)}
+.rules{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;border:1px solid var(--line)}
+.rules h2{margin:0;font-size:15px;line-height:20px;font-weight:600}
+.rules ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.rules li{display:flex;gap:10px;font-size:14px;line-height:20px;color:var(--text-soft)}
+.rules li svg{margin-top:1px;color:var(--live)}
+.person{display:flex;flex-direction:column;gap:12px;padding:16px}
+.person .row{gap:14px}
+.row-link{width:100%;min-height:60px;display:flex;align-items:center;gap:14px;padding:10px 14px 10px 16px;border-radius:16px;border:1px solid var(--line);background:transparent;color:var(--text);text-align:left}
+.row-link:hover{background:var(--surface)}
+.row-link .chev{display:grid;color:var(--text-faint)}
+
+/* Ligação */
+.screen.call{max-width:none;padding:0;background-color:var(--ground);background-image:radial-gradient(circle at 50% 30%,var(--lamp-glow) 0%,transparent 42%)}
+.call-inner{flex:1;width:100%;max-width:560px;margin-inline:auto;display:flex;flex-direction:column;align-items:center;padding-block:20px 24px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));text-align:center}
+.secure{display:flex;align-items:center;gap:8px;font-size:13px;line-height:18px;color:var(--text-muted)}
+.halo{margin-top:40px;width:208px;height:208px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--lamp-ring)}
+.halo>span{width:172px;height:172px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--lamp-ring-strong)}
+.calling .halo{animation:breathe 1.8s ease-in-out infinite}
+.call-name{margin:22px 0 0;font-family:var(--font-display);font-size:28px;line-height:34px;font-weight:700;letter-spacing:-.01em}
+.call-sub{margin:4px 0 0;font-size:14px;line-height:20px;color:var(--text-muted)}
+.timer{margin-top:22px;font-size:44px;line-height:52px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.progress-wrap{margin-top:12px;width:100%;max-width:300px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.progress{width:100%;height:6px;border-radius:3px;overflow:hidden;background:var(--raised)}
+.progress>span{display:block;width:0;height:100%;border-radius:3px;background:var(--lamp);transition:width .9s linear}
+.left{font-size:13px;line-height:18px;color:var(--text-muted)}
+.wave{margin-top:24px;height:48px;display:flex;align-items:center;gap:4px}
+.wave span{width:4px;border-radius:2px;background:var(--live);transform-origin:center;animation:onda 1.1s ease-in-out infinite alternate}
+.controls{margin-top:auto;padding-top:24px;width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.controls.single{grid-template-columns:1fr}
+.control{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;line-height:16px;color:var(--text-soft)}
+.control button{width:64px;height:64px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);color:var(--text)}
+.control button:hover{background:var(--raised)}
+.control button[aria-pressed="true"],.control button[aria-pressed="true"]:hover{background:var(--text);border-color:var(--text);color:var(--night)}
+.control button.end,.control button.end:hover{background:var(--stop);border-color:var(--stop);color:var(--on-stop)}
+.control button.end svg{transform:rotate(135deg)}
+.sim-note{margin:16px 0 0;font-size:12.5px;line-height:18px;color:var(--text-muted);text-wrap:balance}
+.btn-help{margin-top:12px}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes onda{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+
+/* Ouvir */
+.avail{display:flex;flex-direction:column;gap:12px;padding:16px 10px 16px 18px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.avail.is-on{border-color:var(--live-line)}
+.avail-row{display:flex;align-items:center;gap:12px}
+.avail-title{font-family:var(--font-display);font-size:19px;line-height:24px;font-weight:700}
+.avail-note{display:flex;align-items:center;gap:10px;padding-top:12px;padding-right:8px;border-top:1px solid var(--line);font-size:14px;line-height:20px;color:var(--text-soft)}
+.lesson{display:flex;flex-direction:column;gap:12px;padding:18px}
+.lesson-head{display:flex;align-items:center;gap:12px}
+.lesson h2{margin:0;font-size:16px;line-height:22px;font-weight:700}
+.bar{height:6px;border-radius:3px;overflow:hidden;background:var(--raised)}
+.bar>span{display:block;height:100%;border-radius:3px;background:var(--live)}
+
+/* Ajuda */
+.cvv{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:22px;background:var(--surface);border:1px solid var(--lamp-line)}
+.cvv h2{margin:0;font-size:13px;line-height:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lamp)}
+.cvv p{margin:0;font-size:14px;line-height:20px;color:var(--text-soft)}
+.big-num{font-family:var(--font-display);font-size:56px;line-height:60px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;user-select:all}
+.cvv .actions{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.numbers{display:flex;flex-direction:column;border-radius:20px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.number{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.number+.number{border-top:1px solid var(--line)}
+.number .n{width:52px;flex-shrink:0;font-family:var(--font-display);font-size:26px;line-height:30px;font-weight:700;font-variant-numeric:tabular-nums;user-select:all}
+.round.dial{width:44px;height:44px;background:var(--raised);color:var(--text);text-decoration:none}
+.round.dial:hover{background:var(--line-strong);color:var(--text)}
+.boxed{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;border:1px solid var(--line)}
+.boxed h2{margin:0;font-size:15px;line-height:20px;font-weight:600}
+.boxed p{margin:0;font-size:14px;line-height:20px;color:var(--text-muted)}
+
+/* Denunciar */
+.who-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.reasons{display:flex;flex-direction:column;border-radius:16px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.reason{min-height:52px;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:15px;line-height:20px;cursor:pointer}
+.reason+.reason{border-top:1px solid var(--line)}
+.reason:hover{background:var(--raised)}
+.field{display:flex;flex-direction:column;gap:8px}
+.field .label{margin:0}
+.opt{font-weight:400;color:var(--text-muted)}
+textarea{width:100%;min-height:96px;padding:12px 14px;border-radius:14px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-size:15px;line-height:21px;resize:vertical}
+textarea::placeholder{color:var(--text-faint)}
+.done{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;padding-block:72px 24px;text-align:center}
+.done .foot{width:100%}
+.done-icon{width:72px;height:72px;display:grid;place-items:center;border-radius:50%;background:var(--live-wash);color:var(--live)}
+
+/* Call bar, tab bar, toast */
+.callbar{width:100%;min-height:44px;display:flex;align-items:center;gap:10px;padding-block:8px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));border:0;border-bottom:1px solid var(--live-line);background:var(--live-wash);color:var(--text);font-size:14px;line-height:20px;text-align:left}
+.cb-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb-time{font-variant-numeric:tabular-nums;color:var(--text-soft)}
+.cb-go{font-weight:700;color:var(--live)}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.tabbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding-block:6px 10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-top:1px solid var(--line);background:var(--night)}
+.tab{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:12px;background:transparent;color:var(--text-muted);font-size:12px;line-height:16px;font-weight:600}
+.tab:hover{color:var(--text)}
+.tab[aria-current="page"]{color:var(--lamp)}
+.toast{position:absolute;z-index:20;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:16px;padding:12px 16px;border-radius:14px;background:var(--text);color:var(--night);font-size:14px;line-height:20px;font-weight:600;text-align:center;box-shadow:0 12px 30px -10px var(--shadow);transition:opacity .2s,transform .2s}
+.app.has-tabs .toast{bottom:84px}
+.toast[data-show="false"]{opacity:0;transform:translateY(8px);pointer-events:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="guide" aria-label="Guia do protótipo">
+    <div>
+      <div class="brand">
+        <svg width="30" height="30" viewBox="0 0 28 28" aria-hidden="true" focusable="false"><circle cx="9" cy="14" r="5" fill="currentColor"></circle><path d="M16.5 8.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path><path d="M20.5 5a13 13 0 0 1 0 18" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span class="word word-lg">escuta</span>
+      </div>
+      <p class="guide-lede">Protótipo navegável do app. Ouvintes e ligações são de exemplo; os contatos de ajuda são reais.</p>
+    </div>
+    <nav class="flow" aria-label="Telas do protótipo">
+      <div>
+        <h2>Quem quer desabafar</h2>
+        <ol>
+          <li><button type="button" data-jump="entrada"><span class="n">1</span>Entrada anônima</button></li>
+          <li><button type="button" data-jump="inicio"><span class="n">2</span>Buscar quem ouve</button></li>
+          <li><button type="button" data-jump="antes"><span class="n">3</span>Antes de ligar</button></li>
+          <li><button type="button" data-jump="ligacao"><span class="n">4</span>Em ligação</button></li>
+          <li><button type="button" data-jump="depois"><span class="n">5</span>Depois da ligação</button></li>
+        </ol>
+      </div>
+      <div>
+        <h2>Quem ouve · Segurança</h2>
+        <ol>
+          <li><button type="button" data-jump="ouvir"><span class="n">6</span>Modo ouvinte</button></li>
+          <li><button type="button" data-jump="ajuda"><span class="n">7</span>Ajuda urgente</button></li>
+          <li><button type="button" data-jump="denunciar"><span class="n">8</span>Denunciar e bloquear</button></li>
+        </ol>
+      </div>
+    </nav>
+    <div class="tips">
+      <h2>Para testar</h2>
+      <ul>
+        <li>Busque “término” ou “insônia”.</li>
+        <li>Escolha um tema e ligue para alguém livre.</li>
+        <li>Depois da ligação, marque “Pior do que antes”.</li>
+        <li>No modo ouvinte, pause a disponibilidade.</li>
+      </ul>
+    </div>
+  </aside>
+  <div class="device">
+    <div class="app" id="app">
+      <button type="button" class="callbar" id="callbar" data-act="go" data-to="ligacao" hidden>
+        <span class="dot is-live pulse" aria-hidden="true"></span>
+        <span class="cb-text">Em ligação com <strong id="cb-name"></strong></span>
+        <span class="cb-time" id="cb-time"></span>
+        <span class="cb-go">Voltar</span>
+      </button>
+      <main class="screens" id="screens"></main>
+      <nav class="tabbar" id="tabbar" aria-label="Navegação principal" hidden></nav>
+      <div class="toast" id="toast" role="status" aria-live="polite" data-show="false"></div>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  'use strict';
+
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+  // Preferências locais do visitante (apelido, 18+, modo ouvinte). Funciona sem armazenamento.
+  const store = {
+    get(key, fallback) {
+      try {
+        const raw = localStorage.getItem('escuta:' + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      } catch (err) {
+        return fallback;
+      }
+    },
+    set(key, value) {
+      try { localStorage.setItem('escuta:' + key, JSON.stringify(value)); } catch (err) { /* segue em memória */ }
+    }
+  };
+
+  const ICONS = {
+    phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+    lifebuoy: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M14.8 14.8l3.6 3.6M9.2 14.8l-3.6 3.6M9.2 9.2L5.6 5.6M14.8 9.2l3.6-3.6"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+    bell: '<path d="M10 5a2 2 0 1 1 4 0 7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/>',
+    back: '<path d="M15 6l-6 6 6 6"/>',
+    close: '<path d="M18 6L6 18M6 6l12 12"/>',
+    chevron: '<path d="M9 6l6 6-6 6"/>',
+    check: '<path d="M5 12l5 5L20 7"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    shield: '<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    shuffle: '<path d="M18 4l3 3-3 3"/><path d="M18 20l3-3-3-3"/><path d="M3 7h3a5 5 0 0 1 5 5 5 5 0 0 0 5 5h5"/><path d="M21 7h-5a5 5 0 0 0-3 1M9 16a5 5 0 0 1-3 1H3"/>',
+    wave: '<path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10v4"/>',
+    mic: '<path d="M9 5a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0z"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M8 21h8M12 17v4"/>',
+    micOff: '<path d="M3 3l18 18"/><path d="M9 5a3 3 0 0 1 6 0v5a3 3 0 0 1-.13.87"/><path d="M12.9 12.9A3 3 0 0 1 9 10V9"/><path d="M5 10a7 7 0 0 0 10.85 5.85M17.9 13.9A7 7 0 0 0 19 10"/><path d="M8 21h8M12 17v4"/>',
+    speaker: '<path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/><path d="M6 15H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h2l3.5-4.5A.8.8 0 0 1 11 5v14a.8.8 0 0 1-1.5.5L6 15"/>',
+    flag: '<path d="M5 5a5 5 0 0 1 7 0 5 5 0 0 0 7 0v9a5 5 0 0 1-7 0 5 5 0 0 0-7 0z"/><path d="M5 21v-7"/>',
+    book: '<path d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0 9 9 0 0 1 9 0"/><path d="M3 6v13M12 6v13M21 6v13"/>',
+    talk: '<path d="M4 5h16v11H9l-5 4z"/>',
+    headphones: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/>'
+  };
+  const icon = (name, size, sw) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
+  const LOGO = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 28 28" aria-hidden="true" focusable="false"><circle cx="9" cy="14" r="5" fill="currentColor"/><path d="M16.5 8.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M20.5 5a13 13 0 0 1 0 18" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const avatar = (p, size) => `<span class="avatar" style="--a:${p.a};--b:${p.b};--s:${size}px" aria-hidden="true"></span>`;
+
+  // Dados de exemplo do protótipo
+  const ALIASES = [
+    { n: 'Vento Sereno', a: '#E88AA8', b: '#6B2C42' },
+    { n: 'Pedra Mansa', a: '#E59A7B', b: '#6B3523' },
+    { n: 'Céu Aberto', a: '#7C9CE0', b: '#2D3D66' },
+    { n: 'Ninho Quieto', a: '#8CC0A0', b: '#2C5240' },
+    { n: 'Trilha Leve', a: '#C6A2E0', b: '#4F3566' },
+    { n: 'Manhã Clara', a: '#E8C872', b: '#6B5420' }
+  ];
+  const TOPICS = ['Ansiedade', 'Solidão', 'Relacionamento', 'Trabalho', 'Família', 'Luto', 'Estudos', 'Só conversar'];
+  const KEYS = {
+    'Ansiedade': 'ansiedade ansioso ansiosa panico medo nervoso insonia',
+    'Solidão': 'solidao sozinho sozinha isolado isolada saudade',
+    'Relacionamento': 'relacionamento termino namoro namorado namorada casamento separacao divorcio ciume traicao',
+    'Trabalho': 'trabalho emprego chefe demissao desemprego burnout dinheiro',
+    'Família': 'familia pais mae pai filho filha filhos irmao irma',
+    'Luto': 'luto perda morte falecimento saudade',
+    'Estudos': 'estudos faculdade escola prova vestibular enem concurso',
+    'Só conversar': 'so conversar papo conversa qualquer coisa'
+  };
+  const CRISIS = ['suicid', 'me matar', 'morrer', 'tirar minha vida', 'tirar a minha vida', 'acabar com tudo', 'me machucar', 'automutil', 'nao aguento mais'];
+  const PEOPLE = [
+    { id: 'mare', name: 'Maré Tranquila', a: '#6FBBCB', b: '#22505B', tags: ['Ansiedade', 'Trabalho'], style: 'escuta', max: 30, trained: true, busy: false },
+    { id: 'farol', name: 'Farol Atento', a: '#E8C872', b: '#6B5420', tags: ['Solidão', 'Família'], style: 'conversa', max: 20, trained: true, busy: false },
+    { id: 'ipe', name: 'Ipê Florido', a: '#C6A2E0', b: '#4F3566', tags: ['Relacionamento', 'Solidão'], style: 'conversa', max: 45, trained: false, busy: false },
+    { id: 'chuva', name: 'Chuva Fina', a: '#7C9CE0', b: '#2D3D66', tags: ['Luto', 'Família'], style: 'escuta', max: 30, trained: true, busy: false },
+    { id: 'rio', name: 'Rio Calmo', a: '#8CC0A0', b: '#2C5240', tags: ['Estudos', 'Ansiedade'], style: 'conversa', max: 15, trained: false, busy: true },
+    { id: 'brisa', name: 'Brisa Leve', a: '#E59A7B', b: '#6B3523', tags: ['Trabalho', 'Só conversar'], style: 'conversa', max: 20, trained: true, busy: false }
+  ];
+  const STYLE = { escuta: 'Só escuta', conversa: 'Conversa' };
+  const MODES = [
+    { id: 'escuta', title: 'Só preciso que me escutem', sub: 'A outra pessoa ouve, sem dar conselhos.', short: 'Só escuta' },
+    { id: 'conversa', title: 'Quero conversar', sub: 'Troca de ideias, no seu ritmo.', short: 'Conversa' }
+  ];
+  const FEELS = [
+    { id: 'leve', label: 'Mais leve' },
+    { id: 'igual', label: 'Do mesmo jeito' },
+    { id: 'pior', label: 'Pior do que antes' }
+  ];
+  const THANKS = ['Obrigado por ouvir', 'Me ajudou a pensar', 'Me senti menos só'];
+  const REASONS = ['Assédio ou conteúdo sexual', 'Pediu ou passou dados pessoais', 'Ameaça, ódio ou violência', 'Golpe, venda ou pedido de dinheiro', 'Parece ter menos de 18 anos', 'Outro motivo'];
+  const ROUTES = ['entrada', 'inicio', 'antes', 'ligacao', 'depois', 'ouvir', 'ajuda', 'denunciar'];
+  const TABS = ['inicio', 'ouvir', 'ajuda'];
+  const BARS = [14, 22, 30, 18, 38, 26, 44, 32, 20, 36, 28, 16, 24, 40, 30, 18, 34, 22, 42, 26, 16, 30, 20, 12];
+  const WAVE = BARS.map((h, i) => `<span style="height:${h}px;animation-delay:${(-(i * 0.13) % 1.1).toFixed(2)}s"></span>`).join('');
+  const DEFAULT_LISTEN = { on: true, sel: ['Ansiedade', 'Solidão', 'Trabalho'], style: 'escuta', max: 30, pause: true };
+
+  function freshReport(target) {
+    return { target: target || 'mare', reason: '', text: '', block: true, sent: false, ended: false };
+  }
+
+  const savedListen = store.get('listen', null);
+  const S = {
+    route: 'entrada',
+    stack: [],
+    aliasIdx: (Number(store.get('alias', 0)) || 0) % ALIASES.length,
+    agreed: store.get('agreed', false) === true,
+    topic: 'Todos',
+    q: '',
+    notify: {},
+    pick: 'mare',
+    pre: { mode: 'escuta', dur: 20, voice: true },
+    call: null,
+    last: null,
+    post: { feel: '', thank: '' },
+    report: freshReport(),
+    listen: Object.assign({}, DEFAULT_LISTEN, savedListen && typeof savedListen === 'object' ? savedListen : {})
+  };
+  if (!Array.isArray(S.listen.sel)) S.listen.sel = DEFAULT_LISTEN.sel.slice();
+  const T = { connect: 0, toast: 0 };
+
+  const app = $('#app');
+  const screensEl = $('#screens');
+  const tabbar = $('#tabbar');
+  const callbar = $('#callbar');
+  const toastEl = $('#toast');
+
+  const me = () => ALIASES[S.aliasIdx % ALIASES.length];
+  const person = (id) => PEOPLE.find((p) => p.id === id) || PEOPLE[0];
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  const haystack = (p) => norm([p.tags.join(' '), p.tags.map((t) => KEYS[t] || '').join(' '), STYLE[p.style]].join(' '));
+  const pad = (n) => String(n).padStart(2, '0');
+  const clock = (s) => pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+  const elapsed = () => (S.call && S.call.startedAt ? Math.max(0, Math.floor((Date.now() - S.call.startedAt) / 1000)) : 0);
+  const minutes = (secs) => (secs < 60 ? 'menos de 1 min' : Math.round(secs / 60) + ' min');
+
+  function results() {
+    const q = norm(S.q);
+    const words = q ? q.split(/\s+/) : [];
+    return PEOPLE.filter((p) => {
+      const inTopic = S.topic === 'Todos' || p.tags.includes(S.topic);
+      const h = haystack(p);
+      return inTopic && words.every((w) => h.includes(w));
+    });
+  }
+  function isCrisis() {
+    const q = norm(S.q);
+    return q.length > 0 && CRISIS.some((w) => q.includes(w));
+  }
+  function bestMatch() {
+    const free = results().filter((p) => !p.busy);
+    if (free.length) return free[0];
+    const inTopic = PEOPLE.filter((p) => !p.busy && (S.topic === 'Todos' || p.tags.includes(S.topic)));
+    return inTopic[0] || PEOPLE.find((p) => !p.busy) || null;
+  }
+  function ctaText() {
+    if (S.topic === 'Só conversar') return 'Conectamos você em segundos com alguém a fim de conversar.';
+    if (S.topic !== 'Todos') return 'Conectamos você em segundos com alguém que ouve sobre ' + S.topic.toLowerCase() + '.';
+    return 'Conectamos você em segundos com quem estiver disponível agora.';
+  }
+  function leftLabel(secs, total) {
+    const rest = total - secs;
+    if (rest <= 0) return 'Tempo combinado encerrado. Despeçam-se com calma.';
+    const m = Math.ceil(rest / 60);
+    if (rest <= 120) return (m === 1 ? 'Falta 1 min' : 'Faltam ' + m + ' min') + ' · hora de ir fechando';
+    return 'Faltam ' + m + ' min · avisamos 2 min antes do fim';
+  }
+  const availStatus = () => (S.listen.on ? 'Recebendo ligações agora' : 'Pausado: você não aparece na busca');
+  const availNote = () => (S.listen.on ? 'Você aparece como ' + me().n + '. Avisamos por notificação quando alguém ligar.' : 'Ninguém consegue te ligar enquanto estiver pausado.');
+  function topicCount() {
+    const n = S.listen.sel.length;
+    if (n === 0) return 'Escolha pelo menos um tema para receber ligações.';
+    return n === 1 ? '1 tema escolhido · você só recebe ligações dele' : n + ' temas escolhidos · você só recebe ligações deles';
+  }
+
+  // Peças de interface
+  const sw = (act, on, labelledBy) => `<button type="button" class="switch" role="switch" data-act="${act}" aria-checked="${on}" aria-labelledby="${labelledBy}"><span class="track"><span class="knob"></span></span></button>`;
+  const rules = (title, items) => `<section class="rules" aria-label="${esc(title)}"><h2>${esc(title)}</h2><ul>${items.map((x) => `<li>${icon('check', 18, 2)}<span>${x}</span></li>`).join('')}</ul></section>`;
+  const feature = (ic, t, s) => `<li><span class="tile" aria-hidden="true">${icon(ic, 18)}</span><span class="ft"><span class="t">${t}</span><span class="s">${s}</span></span></li>`;
+  const tags = (p) => `<div class="tags">${p.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>`;
+  const badge = (p) => (p.trained ? '<span class="badge">treinado</span>' : '');
+  const dial = (n, name, desc) => `<div class="number"><span class="n">${n}</span><span class="ft grow"><span class="t">${name}</span><span class="s">${desc}</span></span><a class="round dial" href="tel:${n}" aria-label="Ligar para ${name}, ${n}">${icon('phone', 18, 1.9)}</a></div>`;
+  const topbar = (withHelp) => `<header class="topbar"><span class="brand">${LOGO(26)}<span class="word">escuta</span></span>${withHelp ? `<button type="button" class="pill" data-act="go" data-to="ajuda">${icon('lifebuoy', 18)}<span>Ajuda 24h</span></button>` : ''}</header>`;
+  const crisisCard = () => `<div class="warm"><strong>Você não está só nisso.</strong><p>Se está pensando em tirar a própria vida, fale agora com o CVV: 24h, gratuito e sigiloso.</p><div class="pair"><a class="btn btn-lamp btn-sm" href="tel:188">${icon('phone', 16, 1.9)}<span>Ligar 188</span></a><button type="button" class="btn btn-lamp-outline btn-sm" data-act="go" data-to="ajuda">Mais opções</button></div></div>`;
+
+  function card(p) {
+    const free = !p.busy;
+    const action = free
+      ? `<button type="button" class="round call" data-act="call" data-arg="${p.id}" aria-label="Ligar para ${esc(p.name)}">${icon('phone', 20, 1.9)}</button>`
+      : `<button type="button" class="round bell" data-act="bell" data-arg="${p.id}" aria-pressed="${!!S.notify[p.id]}" aria-label="Avisar quando ${esc(p.name)} ficar livre">${icon('bell', 20)}</button>`;
+    return `<article class="card listener"><div class="row">${avatar(p, 40)}<div class="who"><div class="name-row"><span class="name">${esc(p.name)}</span>${badge(p)}</div><div class="status"><span class="dot${free ? ' is-live' : ''}" aria-hidden="true"></span><span>${free ? 'Livre' : 'Em ligação'} · ${STYLE[p.style]} · ${p.max} min</span></div></div>${action}</div>${tags(p)}</article>`;
+  }
+
+  // Telas
+  function scrEntrada() {
+    const al = me();
+    return `
+    <section class="screen entrada" aria-labelledby="t-entrada">
+      <div class="brand-row"><span class="brand">${LOGO(28)}<span class="word word-lg">escuta</span></span><span class="proto">protótipo</span></div>
+      <h1 class="hero" id="t-entrada" tabindex="-1"><span>Sem nome.</span><span>Sem perfil.</span><span class="lit">Só alguém pra ouvir.</span></h1>
+      <p class="lede big">Você entra com um apelido aleatório e liga para quem estiver disponível agora. Ninguém vê seu número, sua foto ou onde você está.</p>
+      <div class="alias-card">
+        <span id="alias-av">${avatar(al, 48)}</span>
+        <span class="ft grow"><span class="kicker">Seu apelido de hoje</span><span class="alias" id="alias-name" aria-live="polite">${esc(al.n)}</span></span>
+        <button type="button" class="icon-btn" data-act="shuffle" aria-label="Sortear outro apelido">${icon('shuffle', 20)}</button>
+      </div>
+      <ul class="features">
+        ${feature('lock', 'Nada é gravado', 'Áudio criptografado, só entre vocês.')}
+        ${feature('shield', 'Denúncia a um toque', 'Bloqueie e denuncie durante a ligação.')}
+        ${feature('clock', 'Você decide o tempo', 'Combine a duração e saia quando quiser.')}
+      </ul>
+      <div class="foot">
+        <label class="agree" for="idade"><input id="idade" type="checkbox" data-act="agree"${S.agreed ? ' checked' : ''}><span>Tenho 18 anos ou mais e aceito os combinados da comunidade.</span></label>
+        <button type="button" class="btn btn-lamp" id="entrar" data-act="enter"${S.agreed ? '' : ' disabled'}>Entrar sem nome</button>
+        <p class="fine">Em risco agora? <a href="tel:188">Ligue 188</a> · CVV, 24h e gratuito</p>
+      </div>
+    </section>`;
+  }
+
+  function scrInicio() {
+    const al = me();
+    return `
+    <section class="screen" aria-labelledby="t-inicio">
+      ${topbar(true)}
+      <div class="stack">
+        <div class="intro">
+          <div class="me">${avatar(al, 18)}<span>Você está como <strong>${esc(al.n)}</strong></span></div>
+          <h1 class="title" id="t-inicio" tabindex="-1">Sobre o que você quer falar?</h1>
+        </div>
+        <div class="search">
+          <label class="sr" for="busca">Buscar por tema</label>
+          ${icon('search', 20)}
+          <input id="busca" type="search" placeholder="Ansiedade, término, trabalho…" autocomplete="off" enterkeyhint="search" value="${esc(S.q)}">
+        </div>
+        <div id="crise" hidden>${crisisCard()}</div>
+        <div class="chips" id="chips" role="group" aria-label="Filtrar por tema">${['Todos'].concat(TOPICS).map((t) => `<button type="button" class="chip" data-act="topic" data-arg="${esc(t)}" aria-pressed="${t === S.topic}">${esc(t)}</button>`).join('')}</div>
+        <section class="cta" aria-labelledby="t-cta">
+          <h2 id="t-cta">Falar com quem estiver livre</h2>
+          <p id="cta-text">${ctaText()}</p>
+          <button type="button" class="btn" data-act="call-now">${icon('phone', 18, 1.9)}<span>Ligar agora</span></button>
+        </section>
+        <div class="section-head"><h2>Quem ouve agora</h2><span class="count"><span class="dot is-live" aria-hidden="true"></span><span id="count" aria-live="polite"></span></span></div>
+        <div class="list" id="lista"></div>
+        <p class="fine faint">Escuta entre pessoas, sem julgamento. Não substitui atendimento psicológico. Protótipo: ouvintes e ligações de exemplo.</p>
+      </div>
+    </section>`;
+  }
+
+  function scrAntes() {
+    const p = person(S.pick);
+    const opts = [10, 20, 30];
+    if (S.pre.dur > p.max) S.pre.dur = opts.filter((d) => d <= p.max).pop() || 10;
+    return `
+    <section class="screen" aria-labelledby="t-antes">
+      <div class="backbar"><button type="button" class="icon-btn" data-act="back" aria-label="Voltar">${icon('back', 20, 2)}</button><h1 class="bar-title" id="t-antes" tabindex="-1">Antes de ligar</h1></div>
+      <div class="stack gap-20">
+        <section class="card person" aria-label="Quem vai ouvir você">
+          <div class="row">${avatar(p, 56)}<div class="who"><div class="name-row"><span class="name lg">${esc(p.name)}</span>${badge(p)}</div><div class="status"><span class="dot is-live" aria-hidden="true"></span><span>Livre · ${STYLE[p.style]} · até ${p.max} min</span></div></div></div>
+          ${tags(p)}
+        </section>
+        <fieldset>
+          <legend>Como você quer começar?</legend>
+          <div class="choices">${MODES.map((m) => `<label class="choice"><input type="radio" name="modo" value="${m.id}" data-act="mode"${S.pre.mode === m.id ? ' checked' : ''}><span class="ft"><span class="t">${m.title}</span><span class="s">${m.sub}</span></span></label>`).join('')}</div>
+        </fieldset>
+        <fieldset>
+          <legend>Quanto tempo?</legend>
+          <div class="seg c3">${opts.map((d) => `<button type="button" data-act="dur" data-arg="${d}" aria-pressed="${S.pre.dur === d}"${d > p.max ? ' disabled' : ''}>${d} min</button>`).join('')}</div>
+          ${p.max < 30 ? `<p class="hint after">${esc(p.name)} ouve até ${p.max} min por ligação.</p>` : ''}
+        </fieldset>
+        <div class="row-switch">
+          <span class="tile" aria-hidden="true">${icon('wave', 18)}</span>
+          <span class="ft grow"><span class="t" id="lbl-voz">Disfarçar minha voz</span><span class="s">Muda o tom da sua voz durante a ligação.</span></span>
+          ${sw('voice', S.pre.voice, 'lbl-voz')}
+        </div>
+        ${rules('Combinados', ['Sem nomes, telefones, endereços ou redes sociais.', 'Nada é gravado. Qualquer um pode encerrar quando quiser.', 'É escuta entre pessoas, não atendimento psicológico.'])}
+        <div class="foot">
+          <button type="button" class="btn btn-lamp" data-act="start-call">${icon('phone', 20, 1.9)}<span>Ligar para ${esc(p.name)}</span></button>
+          <p class="fine">Corre risco agora? <a href="tel:188">Ligue 188</a> · CVV, 24h e gratuito</p>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  function scrLigacao() {
+    const c = S.call;
+    const p = person(c.id);
+    const calling = c.phase !== 'conectado';
+    const mode = MODES.find((m) => m.id === c.mode) || MODES[0];
+    const controls = calling
+      ? `<div class="controls single"><div class="control"><button type="button" class="end" data-act="end" aria-label="Cancelar ligação">${icon('phone', 26, 1.9)}</button><span>Cancelar</span></div></div>`
+      : `<div class="controls">
+          <div class="control"><button type="button" data-act="mute" aria-pressed="${c.muted}" aria-label="Silenciar microfone">${icon(c.muted ? 'micOff' : 'mic', 26)}</button><span id="mute-lbl">${c.muted ? 'Silenciado' : 'Silenciar'}</span></div>
+          <div class="control"><button type="button" data-act="speaker" aria-pressed="${c.speaker}" aria-label="Alto-falante">${icon('speaker', 26)}</button><span>Alto-falante</span></div>
+          <div class="control"><button type="button" data-act="report" aria-label="Denunciar ligação">${icon('flag', 24)}</button><span>Denunciar</span></div>
+          <div class="control"><button type="button" class="end" data-act="end" aria-label="Encerrar ligação">${icon('phone', 26, 1.9)}</button><span>Encerrar</span></div>
+        </div>`;
+    return `
+    <section class="screen call${calling ? ' calling' : ''}" aria-labelledby="t-lig">
+      <div class="call-inner">
+        <div class="secure">${icon('lock', 16)}<span>Ligação anônima · criptografada</span></div>
+        <div class="halo" aria-hidden="true"><span>${avatar(p, 136)}</span></div>
+        <h1 class="call-name" id="t-lig" tabindex="-1">${esc(p.name)}</h1>
+        <p class="call-sub">${calling ? 'Chamando…' : esc(mode.short) + ' · combinado de ' + c.dur + ' min'}</p>
+        ${calling ? '' : `
+        <div class="timer" id="timer">00:00</div>
+        <div class="progress-wrap">
+          <div class="progress" id="prog" role="progressbar" aria-label="Tempo combinado" aria-valuemin="0" aria-valuemax="${c.dur * 60}" aria-valuenow="0"><span id="prog-fill"></span></div>
+          <span class="left" id="left"></span>
+        </div>
+        <div class="wave" aria-hidden="true">${WAVE}</div>`}
+        ${controls}
+        <p class="sim-note">Protótipo: esta ligação é simulada. Para falar com alguém agora, ligue <a href="tel:188">188</a>.</p>
+        <button type="button" class="btn btn-lamp-outline btn-help" data-act="go" data-to="ajuda">${icon('lifebuoy', 18)}<span>Ajuda urgente · 188</span></button>
+      </div>
+    </section>`;
+  }
+
+  function scrDepois() {
+    const L = S.last || { id: 'mare', secs: 18 * 60 };
+    const p = person(L.id);
+    return `
+    <section class="screen" aria-labelledby="t-dep">
+      <div class="closebar"><button type="button" class="icon-btn" data-act="go-home" aria-label="Fechar">${icon('close', 20, 2)}</button></div>
+      <div class="stack gap-20 top-tight">
+        <div class="intro">
+          <span class="meta">${icon('clock', 16)}<span>Ligação encerrada · ${minutes(L.secs)} com ${esc(p.name)}</span></span>
+          <h1 class="title md" id="t-dep" tabindex="-1">Como você está saindo dessa conversa?</h1>
+        </div>
+        <fieldset aria-label="Como você está agora">
+          <div class="choices tight">${FEELS.map((f) => `<label class="choice compact"><input type="radio" name="sentimento" value="${f.id}" data-act="feel"${S.post.feel === f.id ? ' checked' : ''}><span>${f.label}</span></label>`).join('')}</div>
+        </fieldset>
+        <div class="warm" id="pior"${S.post.feel === 'pior' ? '' : ' hidden'}>
+          <strong>Obrigado por dizer. Você não está só nisso.</strong>
+          <p>O CVV atende pelo 188, 24h, de graça e em sigilo. Ou tente falar com outra pessoa daqui.</p>
+          <div class="pair"><a class="btn btn-lamp btn-sm" href="tel:188">${icon('phone', 16, 1.9)}<span>Ligar 188</span></a><button type="button" class="btn btn-lamp-outline btn-sm" data-act="go-home">Outra pessoa</button></div>
+        </div>
+        <div class="group">
+          <h2 class="label">Quer deixar um obrigado?</h2>
+          <div class="chips">${THANKS.map((k) => `<button type="button" class="chip" data-act="thank" data-arg="${esc(k)}" aria-pressed="${S.post.thank === k}">${esc(k)}</button>`).join('')}</div>
+          <p class="note">${esc(p.name)} recebe só a mensagem, sem saber quem mandou.</p>
+        </div>
+        <button type="button" class="row-link" data-act="report-after"><span class="tile" aria-hidden="true">${icon('flag', 18)}</span><span class="ft grow"><span class="t">Algo deu errado?</span><span class="s">Denunciar ou bloquear esta pessoa</span></span><span class="chev">${icon('chevron', 18, 2)}</span></button>
+        <div class="foot">
+          <button type="button" class="btn btn-lamp" id="done" data-act="finish">${S.post.thank ? 'Enviar obrigado e concluir' : 'Concluir'}</button>
+          <p class="fine faint">Nada da conversa fica salvo. A avaliação não fica ligada ao seu apelido.</p>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  function scrOuvir() {
+    const L = S.listen;
+    return `
+    <section class="screen" aria-labelledby="t-ouvir">
+      ${topbar(true)}
+      <div class="stack gap-22">
+        <div class="intro">
+          <h1 class="title" id="t-ouvir" tabindex="-1">Quero ouvir</h1>
+          <p class="lede">Fique disponível para quem precisa desabafar. Você também aparece sem nome, só com um apelido.</p>
+        </div>
+        <section class="avail${L.on ? ' is-on' : ''}" id="avail" aria-label="Disponibilidade">
+          <div class="avail-row">
+            <span class="ft grow"><span class="avail-title" id="lbl-disp">Disponível para ouvir</span><span class="status"><span class="dot${L.on ? ' is-live' : ''}" id="avail-dot" aria-hidden="true"></span><span id="avail-status">${availStatus()}</span></span></span>
+            ${sw('listen-on', L.on, 'lbl-disp')}
+          </div>
+          <div class="avail-note">${avatar(me(), 28)}<span id="avail-note">${esc(availNote())}</span></div>
+        </section>
+        <fieldset>
+          <legend>Temas que me sinto bem em ouvir</legend>
+          <p class="hint" id="topic-count" aria-live="polite">${topicCount()}</p>
+          <div class="chips">${TOPICS.map((t) => `<button type="button" class="chip" data-act="ltopic" data-arg="${esc(t)}" aria-pressed="${L.sel.includes(t)}"><span class="check">${icon('check', 15, 2.4)}</span><span>${esc(t)}</span></button>`).join('')}</div>
+        </fieldset>
+        <fieldset>
+          <legend>Meu jeito de ouvir</legend>
+          <div class="seg c2">${[['escuta', 'Só escuto'], ['conversa', 'Gosto de conversar']].map(([id, label]) => `<button type="button" data-act="lstyle" data-arg="${id}" aria-pressed="${L.style === id}">${label}</button>`).join('')}</div>
+        </fieldset>
+        <fieldset>
+          <legend>Tempo máximo por ligação</legend>
+          <div class="seg c3">${[15, 30, 45].map((m) => `<button type="button" data-act="lmax" data-arg="${m}" aria-pressed="${L.max === m}">${m} min</button>`).join('')}</div>
+        </fieldset>
+        <section class="card lesson" aria-labelledby="t-lesson">
+          <div class="lesson-head"><span class="tile live" aria-hidden="true">${icon('book', 18)}</span><div class="ft grow"><h2 id="t-lesson">Formação em escuta</h2><span class="s">4 de 6 lições · libera o selo treinado</span></div></div>
+          <div class="bar" role="progressbar" aria-label="Formação em escuta" aria-valuemin="0" aria-valuemax="6" aria-valuenow="4"><span style="width:66.7%"></span></div>
+          <button type="button" class="btn btn-ghost btn-sm" data-act="lesson">Continuar lição 5</button>
+        </section>
+        <div class="row-switch">
+          <span class="ft grow"><span class="t" id="lbl-pausa">Pausa depois de 3 ligações</span><span class="s">Ouvir também cansa. Você sai da busca por 1 hora.</span></span>
+          ${sw('lpause', L.pause, 'lbl-pausa')}
+        </div>
+        ${rules('Combinados de quem ouve', ['Ouça mais do que fala. Sem julgamento, sem sermão.', 'Nunca peça nem passe contato, foto ou dinheiro.', 'Se a pessoa disser que corre risco, indique o 188 e toque em Ajuda urgente.'])}
+      </div>
+    </section>`;
+  }
+
+  function scrAjuda() {
+    return `
+    <section class="screen" aria-labelledby="t-ajuda">
+      ${topbar(false)}
+      <div class="stack gap-20">
+        <div class="intro">
+          <span class="eyebrow">Ajuda urgente</span>
+          <h1 class="title" id="t-ajuda" tabindex="-1">Você não está só nisso.</h1>
+          <p class="lede">Se você está em perigo ou pensando em tirar a própria vida, fale agora com quem é preparado para isso. É gratuito e sigiloso.</p>
+        </div>
+        <section class="cvv" aria-labelledby="t-cvv">
+          <h2 id="t-cvv">CVV · Centro de Valorização da Vida</h2>
+          <span class="big-num">188</span>
+          <p>Apoio emocional e prevenção do suicídio. 24 horas, todos os dias, ligação gratuita.</p>
+          <div class="actions">
+            <a class="btn btn-lamp" href="tel:188">${icon('phone', 20, 1.9)}<span>Ligar 188 agora</span></a>
+            <a class="btn btn-ghost" href="https://cvv.org.br/chat" target="_blank" rel="noopener noreferrer">Conversar por chat</a>
+          </div>
+        </section>
+        <section aria-labelledby="t-outros">
+          <h2 class="label" id="t-outros">Outras emergências</h2>
+          <div class="numbers">
+            ${dial('192', 'SAMU', 'Emergência médica, ferimentos ou intoxicação.')}
+            ${dial('190', 'Polícia Militar', 'Se alguém te ameaça ou você corre perigo agora.')}
+            ${dial('180', 'Central de Atendimento à Mulher', 'Violência contra a mulher. 24h e gratuito.')}
+          </div>
+        </section>
+        <section class="boxed" aria-labelledby="t-mod">
+          <h2 id="t-mod">Aconteceu algo numa ligação?</h2>
+          <p>Se alguém te desrespeitou, pediu dados pessoais ou parece ser menor de idade, avise a moderação.</p>
+          <button type="button" class="btn btn-ghost" data-act="report-new">${icon('flag', 18)}<span>Denunciar ou bloquear</span></button>
+        </section>
+        <p class="fine faint">Para acompanhamento contínuo, procure a UBS ou o CAPS da sua cidade, pelo SUS.</p>
+      </div>
+    </section>`;
+  }
+
+  function reportDoneText(R) {
+    const start = R.ended ? 'A ligação foi encerrada' : 'Obrigado por avisar';
+    const blocked = R.block ? (R.ended ? ' e esta pessoa foi bloqueada.' : '. Esta pessoa foi bloqueada.') : '.';
+    return start + blocked + ' A equipe de moderação vai analisar o caso.';
+  }
+  const sendLabel = () => (S.report.reason === '' ? 'Escolha um motivo' : (S.call && S.call.id === S.report.target ? 'Enviar denúncia e encerrar' : 'Enviar denúncia'));
+
+  function scrDenunciar() {
+    const R = S.report;
+    const p = person(R.target);
+    if (R.sent) {
+      return `
+      <section class="screen" aria-labelledby="t-den-ok">
+        <div class="done">
+          <span class="done-icon" aria-hidden="true">${icon('check', 34, 2.2)}</span>
+          <h1 class="title md" id="t-den-ok" tabindex="-1">Recebemos sua denúncia</h1>
+          <p class="lede">${reportDoneText(R)}</p>
+          <div class="foot">
+            <button type="button" class="btn btn-lamp" data-act="report-home">Voltar ao início</button>
+            <button type="button" class="btn btn-ghost" data-act="go" data-to="ajuda">Ajuda urgente</button>
+          </div>
+        </div>
+      </section>`;
+    }
+    const live = S.call && S.call.id === p.id;
+    return `
+    <section class="screen" aria-labelledby="t-den">
+      <div class="backbar"><button type="button" class="icon-btn" data-act="back" aria-label="Voltar">${icon('back', 20, 2)}</button><h1 class="bar-title" id="t-den" tabindex="-1">Denunciar ligação</h1></div>
+      <div class="stack gap-20">
+        <div class="who-card">${avatar(p, 36)}<span class="ft grow"><span class="t">${live ? 'Ligação em andamento com ' : 'Ligação com '}${esc(p.name)}</span><span class="s">A outra pessoa não fica sabendo quem denunciou.</span></span></div>
+        <fieldset>
+          <legend>O que aconteceu?</legend>
+          <div class="reasons">${REASONS.map((r, i) => `<label class="reason"><input type="radio" name="motivo" value="${i}" data-act="reason"${R.reason === String(i) ? ' checked' : ''}><span>${r}</span></label>`).join('')}</div>
+        </fieldset>
+        <div class="field">
+          <label class="label" for="detalhes">Quer contar mais? <span class="opt">(opcional)</span></label>
+          <textarea id="detalhes" rows="3" placeholder="O que foi dito ou feito. Não inclua dados pessoais.">${esc(R.text)}</textarea>
+        </div>
+        <div class="row-switch">
+          <span class="ft grow"><span class="t" id="lbl-bloq">Bloquear esta pessoa</span><span class="s">Vocês não se cruzam de novo, mesmo com apelidos novos.</span></span>
+          ${sw('block', R.block, 'lbl-bloq')}
+        </div>
+        <div class="foot">
+          <button type="button" class="btn btn-lamp" id="send-report" data-act="send-report"${R.reason === '' ? ' disabled' : ''}>${sendLabel()}</button>
+          <p class="fine">Alguém corre perigo agora? Ligue <a href="tel:190">190</a> ou <a href="tel:188">188</a>.</p>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  const VIEWS = { entrada: scrEntrada, inicio: scrInicio, antes: scrAntes, ligacao: scrLigacao, depois: scrDepois, ouvir: scrOuvir, ajuda: scrAjuda, denunciar: scrDenunciar };
+
+  // Navegação
+  function render(opt) {
+    if (S.route === 'ligacao' && !S.call) S.route = 'inicio';
+    const r = S.route;
+    screensEl.innerHTML = VIEWS[r]();
+    screensEl.scrollTop = 0;
+    clearTimeout(T.toast);
+    toastEl.dataset.show = 'false';
+    const isTab = TABS.includes(r);
+    tabbar.hidden = !isTab;
+    app.classList.toggle('has-tabs', isTab);
+    $$('.tab', tabbar).forEach((t) => { if (t.dataset.to === r) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
+    $$('[data-jump]').forEach((b) => { if (b.dataset.jump === r) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+    if (r === 'inicio') updateInicio();
+    if (r === 'ligacao') tick();
+    updateCallbar();
+    if (opt && opt.focus) {
+      const h = screensEl.querySelector('h1');
+      if (h) h.focus({ preventScroll: true });
+    }
+  }
+  function go(route, opt) {
+    opt = opt || {};
+    if (!ROUTES.includes(route)) route = 'inicio';
+    if (opt.reset) S.stack = [];
+    else if (!opt.replace && S.route !== route) S.stack.push(S.route);
+    if (S.stack.length > 40) S.stack.shift();
+    S.route = route;
+    render({ focus: true });
+  }
+  function back() {
+    let r = S.stack.pop();
+    while (r === 'ligacao' && !S.call) r = S.stack.pop();
+    S.route = r || (S.agreed ? 'inicio' : 'entrada');
+    render({ focus: true });
+  }
+  function jump(r, opt) {
+    if (!ROUTES.includes(r)) return;
+    if ((r === 'antes' || r === 'ligacao') && person(S.pick).busy) S.pick = 'mare';
+    if (r === 'ligacao' && !S.call) startCall();
+    if (r === 'depois' && !S.last) S.last = { id: 'mare', secs: 18 * 60 };
+    if (r === 'denunciar') S.report = freshReport(S.call ? S.call.id : (S.last ? S.last.id : 'mare'));
+    S.stack = r === 'inicio' || r === 'entrada' ? [] : ['inicio'];
+    S.route = r;
+    render({ focus: !opt || opt.focus !== false });
+  }
+
+  function updateInicio() {
+    const lista = $('#lista');
+    if (!lista) return;
+    const list = results();
+    const free = list.filter((p) => !p.busy).length;
+    lista.innerHTML = list.length ? list.map(card).join('') : '<div class="empty"><strong>Ninguém livre com esse filtro agora</strong><p>Toque em Ligar agora: conectamos você com a próxima pessoa disponível.</p></div>';
+    $('#count').textContent = free === 0 ? 'ninguém livre' : free === 1 ? '1 pessoa livre' : free + ' pessoas livres';
+    $('#cta-text').textContent = ctaText();
+    $('#crise').hidden = !isCrisis();
+  }
+
+  // Ligação simulada
+  function startCall() {
+    const p = person(S.pick);
+    if (!p || p.busy) return false;
+    clearTimeout(T.connect);
+    S.call = { id: p.id, mode: S.pre.mode, dur: Math.min(S.pre.dur, p.max), phase: 'chamando', startedAt: 0, muted: false, speaker: false, warned: false };
+    T.connect = setTimeout(() => {
+      if (!S.call) return;
+      S.call.phase = 'conectado';
+      S.call.startedAt = Date.now();
+      if (S.route === 'ligacao') render(); else updateCallbar();
+    }, 2400);
+    return true;
+  }
+  function endCall() {
+    if (!S.call) return false;
+    clearTimeout(T.connect);
+    const connected = S.call.phase === 'conectado';
+    S.last = { id: S.call.id, secs: connected ? elapsed() : 0 };
+    S.call = null;
+    return connected;
+  }
+  function updateCallbar() {
+    const show = !!S.call && S.route !== 'ligacao';
+    callbar.hidden = !show;
+    if (!show) return;
+    $('#cb-name').textContent = person(S.call.id).name;
+    $('#cb-time').textContent = S.call.phase === 'conectado' ? clock(elapsed()) : 'chamando…';
+  }
+  function tick() {
+    if (!S.call) return;
+    if (S.call.phase !== 'conectado') { updateCallbar(); return; }
+    const secs = elapsed();
+    const total = S.call.dur * 60;
+    const timer = $('#timer');
+    if (timer) {
+      timer.textContent = clock(secs);
+      $('#prog-fill').style.width = Math.min(100, (secs / total) * 100).toFixed(2) + '%';
+      $('#prog').setAttribute('aria-valuenow', String(Math.min(secs, total)));
+      $('#left').textContent = leftLabel(secs, total);
+      if (!S.call.warned && total - secs <= 120 && total - secs > 0) {
+        S.call.warned = true;
+        toast('Faltam 2 minutos do tempo combinado.');
+      }
+    }
+    if (!callbar.hidden) $('#cb-time').textContent = clock(secs);
+  }
+
+  function toast(msg) {
+    clearTimeout(T.toast);
+    toastEl.textContent = msg;
+    toastEl.dataset.show = 'true';
+    T.toast = setTimeout(() => { toastEl.dataset.show = 'false'; }, 2800);
+  }
+  function flip(el) {
+    const v = el.getAttribute('aria-checked') !== 'true';
+    el.setAttribute('aria-checked', String(v));
+    return v;
+  }
+  function pressOne(el) {
+    $$('[aria-pressed]', el.parentElement).forEach((b) => b.setAttribute('aria-pressed', String(b === el)));
+  }
+  const saveListen = () => store.set('listen', S.listen);
+
+  const ACTIONS = {
+    go: (el) => go(el.dataset.to),
+    tab: (el) => go(el.dataset.to, { reset: true }),
+    'go-home': () => go('inicio', { reset: true }),
+    back: () => back(),
+    shuffle: () => {
+      S.aliasIdx = (S.aliasIdx + 1) % ALIASES.length;
+      store.set('alias', S.aliasIdx);
+      const al = me();
+      $('#alias-name').textContent = al.n;
+      $('#alias-av').innerHTML = avatar(al, 48);
+    },
+    enter: () => { if (S.agreed) go('inicio', { reset: true }); },
+    topic: (el) => {
+      S.topic = el.dataset.arg;
+      $$('#chips .chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.arg === S.topic)));
+      updateInicio();
+    },
+    'call-now': () => {
+      const p = bestMatch();
+      if (!p) { toast('Ninguém livre agora. Volte em alguns minutos.'); return; }
+      S.pick = p.id;
+      go('antes');
+    },
+    call: (el) => { S.pick = el.dataset.arg; go('antes'); },
+    bell: (el) => {
+      const id = el.dataset.arg;
+      S.notify[id] = !S.notify[id];
+      el.setAttribute('aria-pressed', String(S.notify[id]));
+      toast(S.notify[id] ? 'Avisaremos quando ' + person(id).name + ' ficar livre.' : 'Aviso cancelado.');
+    },
+    dur: (el) => { if (el.disabled) return; S.pre.dur = Number(el.dataset.arg); pressOne(el); },
+    voice: (el) => { S.pre.voice = flip(el); },
+    'start-call': () => { if (startCall()) go('ligacao', { replace: true }); },
+    mute: (el) => {
+      if (!S.call) return;
+      S.call.muted = !S.call.muted;
+      el.setAttribute('aria-pressed', String(S.call.muted));
+      el.innerHTML = icon(S.call.muted ? 'micOff' : 'mic', 26);
+      $('#mute-lbl').textContent = S.call.muted ? 'Silenciado' : 'Silenciar';
+    },
+    speaker: (el) => {
+      if (!S.call) return;
+      S.call.speaker = !S.call.speaker;
+      el.setAttribute('aria-pressed', String(S.call.speaker));
+    },
+    report: () => { S.report = freshReport(S.call ? S.call.id : 'mare'); go('denunciar'); },
+    end: () => {
+      const connected = endCall();
+      if (connected) {
+        S.post = { feel: '', thank: '' };
+        go('depois', { replace: true });
+      } else {
+        go('antes', { replace: true });
+        toast('Ligação cancelada.');
+      }
+    },
+    thank: (el) => {
+      const k = el.dataset.arg;
+      S.post.thank = S.post.thank === k ? '' : k;
+      $$('[data-act="thank"]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.arg === S.post.thank)));
+      $('#done').textContent = S.post.thank ? 'Enviar obrigado e concluir' : 'Concluir';
+    },
+    'report-after': () => { S.report = freshReport(S.last ? S.last.id : 'mare'); go('denunciar'); },
+    'report-new': () => { S.report = freshReport(S.call ? S.call.id : (S.last ? S.last.id : 'mare')); go('denunciar'); },
+    finish: () => {
+      const thanked = !!S.post.thank;
+      S.post = { feel: '', thank: '' };
+      go('inicio', { reset: true });
+      toast(thanked ? 'Obrigado enviado.' : 'Avaliação registrada. Obrigado.');
+    },
+    'listen-on': (el) => {
+      S.listen.on = flip(el);
+      saveListen();
+      $('#avail').classList.toggle('is-on', S.listen.on);
+      $('#avail-dot').classList.toggle('is-live', S.listen.on);
+      $('#avail-status').textContent = availStatus();
+      $('#avail-note').textContent = availNote();
+    },
+    ltopic: (el) => {
+      const t = el.dataset.arg;
+      const i = S.listen.sel.indexOf(t);
+      if (i >= 0) S.listen.sel.splice(i, 1); else S.listen.sel.push(t);
+      el.setAttribute('aria-pressed', String(i < 0));
+      $('#topic-count').textContent = topicCount();
+      saveListen();
+    },
+    lstyle: (el) => { S.listen.style = el.dataset.arg; pressOne(el); saveListen(); },
+    lmax: (el) => { S.listen.max = Number(el.dataset.arg); pressOne(el); saveListen(); },
+    lpause: (el) => { S.listen.pause = flip(el); saveListen(); },
+    lesson: () => toast('As lições entram na próxima versão do protótipo.'),
+    block: (el) => { S.report.block = flip(el); },
+    'send-report': () => {
+      if (S.report.reason === '') return;
+      S.report.ended = !!S.call && S.call.id === S.report.target;
+      if (S.report.ended) endCall();
+      S.report.sent = true;
+      render({ focus: true });
+    },
+    'report-home': () => { S.report = freshReport(); go('inicio', { reset: true }); }
+  };
+
+  const CHANGES = {
+    agree: (el) => {
+      S.agreed = el.checked;
+      store.set('agreed', S.agreed);
+      $('#entrar').disabled = !S.agreed;
+    },
+    mode: (el) => { S.pre.mode = el.value; },
+    feel: (el) => {
+      S.post.feel = el.value;
+      $('#pior').hidden = el.value !== 'pior';
+    },
+    reason: (el) => {
+      S.report.reason = el.value;
+      const b = $('#send-report');
+      b.disabled = false;
+      b.textContent = sendLabel();
+    }
+  };
+
+  document.addEventListener('click', (e) => {
+    const jumpEl = e.target.closest('[data-jump]');
+    if (jumpEl) { jump(jumpEl.dataset.jump); return; }
+    const el = e.target.closest('[data-act]');
+    if (!el || el.tagName === 'INPUT') return;
+    const fn = ACTIONS[el.dataset.act];
+    if (fn) fn(el, e);
+  });
+  document.addEventListener('change', (e) => {
+    const el = e.target;
+    if (!el || el.tagName !== 'INPUT' || !el.dataset.act) return;
+    const fn = CHANGES[el.dataset.act];
+    if (fn) fn(el);
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.id === 'busca') { S.q = el.value; updateInicio(); }
+    else if (el.id === 'detalhes') { S.report.text = el.value; }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target && e.target.id === 'busca') e.target.blur();
+  });
+
+  tabbar.innerHTML = [['inicio', 'talk', 'Desabafar'], ['ouvir', 'headphones', 'Ouvir'], ['ajuda', 'lifebuoy', 'Ajuda']]
+    .map(([to, ic, label]) => `<button type="button" class="tab" data-act="tab" data-to="${to}">${icon(ic, 24)}<span>${label}</span></button>`).join('');
+
+  let initial = '';
+  try { initial = decodeURIComponent((location.hash || '').slice(1)); } catch (err) { initial = ''; }
+  if (ROUTES.includes(initial)) {
+    jump(initial, { focus: false });
+  } else {
+    S.route = S.agreed ? 'inicio' : 'entrada';
+    render();
+  }
+  setInterval(tick, 1000);
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
